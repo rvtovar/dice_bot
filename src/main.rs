@@ -18,12 +18,12 @@ async fn hello(ctx: Context<'_>) -> Result<(), Error> {
 #[poise::command(slash_command)]
 async fn roll(
     ctx: Context<'_>,
-    #[description = "The number of sides on the die (4,6,8,10,12,100)"] sides: u32,
+    #[description = "The number of sides on the die (4,6,8,10,12,20,100)"] sides: u32,
     #[description = "The number of dice to roll"] num: u32,
     #[description = "The modifier to add to the roll"] modifier: i32,
 ) -> Result<(), Error>{
     // Validating the input
-    let valid = [4,6,8,10,12,100];
+    let valid = [4,6,8,10,12,20,100];
     if !valid.contains(&sides){
         ctx.say("Invalid number of sides. Please choose from 4,6,8,10,12,100").await?;
         return Ok(());
@@ -37,7 +37,7 @@ async fn roll(
     }
     total = total + modifier;
 
-    let rolls_str = rolls.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");;
+    let rolls_str = rolls.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
     ctx.say(format!("Rolls: {}\nTotal: {}", rolls_str, total)).await?;
     Ok(())
 }
