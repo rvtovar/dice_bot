@@ -1,10 +1,14 @@
+mod frog_lib;
+
 use anyhow::Context as _;
 use poise::serenity_prelude::{ClientBuilder, GatewayIntents};
 use shuttle_runtime::SecretStore;
 use shuttle_serenity::ShuttleSerenity;
 use rand::Rng;
 
-struct Data {} // User data, which is stored and accessible in all command invocations
+struct Data {
+    unsplash_api_key: String,
+} // User data, which is stored and accessible in all command invocations
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
 
@@ -59,7 +63,14 @@ The total is {}"#, user_name, num, sides, modifier, rolls_str, total);
 // Beginning of Frog Command
 #[poise::command(slash_command)]
 async fn frog(ctx: Context<'_>) -> Result<(), Error> {
-    ctx.say("A Frog will be here soon 🐸").await?;
+    match frog_lib::get_frog_photo(&ctx.data().unsplash_api_key).await {
+        Ok(url) => {
+            ctx.say(url).await?;
+        }
+        Err(e) => {
+            ctx.say(format!("Error: {}", e)).await?;
+        }
+    }
     Ok(())
 }
 
@@ -69,16 +80,20 @@ async fn main(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> ShuttleS
     let discord_token = secret_store
         .get("DISCORD_TOKEN")
         .context("'DISCORD_TOKEN' was not found")?;
-
+    let unsplash_api_key = secret_store
+        .get("UNSPLASH_API_KEY")
+        .context("'UNSPLASH_API_KEY' was not found")?;
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![hello(), roll(), frog()], // Add the command to the framework
+            commands: vec![hello(), roll(),frog()], // Add the command to the framework
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {
             Box::pin(async move {
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
-                Ok(Data {})
+                Ok(Data {
+                    unsplash_api_key: unsplash_api_key.clone(),
+                })
             })
         })
         .build();
