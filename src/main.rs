@@ -36,9 +36,23 @@ async fn roll(
         total = total + roll;
     }
     total = total + modifier;
-
+    let user_name = &ctx.author().name;
     let rolls_str = rolls.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
-    ctx.say(format!("Rolls: {}\nTotal: {}", rolls_str, total)).await?;
+    if num == 1{
+        let message = format!(r#"
+{} rolled a {} sided die with a modifer of {},
+The roll is {}
+The total is {}"#, user_name, sides, modifier, total-modifier,total);
+        ctx.say(message).await?;
+        return Ok(());
+    }
+    let message =format!(r#"
+{} rolled {}d{} with a modifer of {},
+The following were rolled {}
+The total is {}"#, user_name, num, sides, modifier, rolls_str, total);
+
+
+    ctx.say(message).await?;
     Ok(())
 }
 
