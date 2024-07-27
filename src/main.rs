@@ -74,6 +74,18 @@ async fn frog(ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
+#[poise::command(slash_command)]
+async fn shroom(ctx: Context<'_>) -> Result<(), Error> {
+    match frog_lib::get_mushroom_photo(&ctx.data().unsplash_api_key).await {
+        Ok(url) => {
+            ctx.say(url).await?;
+        }
+        Err(e) => {
+            ctx.say(format!("Error: {}", e)).await?;
+        }
+    }
+    Ok(())
+}
 #[shuttle_runtime::main]
 async fn main(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> ShuttleSerenity {
     // Get the discord token set in `Secrets.toml`
@@ -85,7 +97,7 @@ async fn main(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> ShuttleS
         .context("'UNSPLASH_API_KEY' was not found")?;
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![hello(), roll(),frog()], // Add the command to the framework
+            commands: vec![hello(), roll(),frog(), shroom()], // Add the command to the framework
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {

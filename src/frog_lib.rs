@@ -22,3 +22,15 @@ pub async fn get_frog_photo(api_key: &str) -> Result<String, reqwest::Error> {
         .await?;
     Ok(res.urls.regular)
 }
+
+pub async fn get_mushroom_photo(api_key: &str) -> Result<String, reqwest::Error> {
+    let client = Client::new();
+    let res = client
+        .get("https://api.unsplash.com/photos/random")
+        .query(&[("query", "mushrooms"), ("client_id", api_key)])
+        .send()
+        .await?
+        .json::<UnsplashResponse>()
+        .await?;
+    Ok(res.urls.regular)
+}
