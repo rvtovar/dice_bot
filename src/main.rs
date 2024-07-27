@@ -56,6 +56,13 @@ The total is {}"#, user_name, num, sides, modifier, rolls_str, total);
     Ok(())
 }
 
+// Beginning of Frog Command
+#[poise::command(slash_command)]
+async fn frog(ctx: Context<'_>) -> Result<(), Error> {
+    ctx.say("A Frog will be here soon 🐸").await?;
+    Ok(())
+}
+
 #[shuttle_runtime::main]
 async fn main(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> ShuttleSerenity {
     // Get the discord token set in `Secrets.toml`
@@ -65,7 +72,7 @@ async fn main(#[shuttle_runtime::Secrets] secret_store: SecretStore) -> ShuttleS
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![hello(), roll()], // Add the command to the framework
+            commands: vec![hello(), roll(), frog()], // Add the command to the framework
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {
